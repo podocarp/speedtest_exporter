@@ -6,16 +6,11 @@
 ---
 A [Speedtest](https://www.speedtest.net) exporter for Prometheus.
 
-[![goreleaser](https://github.com/danopstech/speedtest_exporter/actions/workflows/release.yaml/badge.svg)](https://github.com/danopstech/speedtest_exporter/actions/workflows/release.yaml)
-[![build](https://github.com/danopstech/speedtest_exporter/actions/workflows/build.yaml/badge.svg)](https://github.com/danopstech/speedtest_exporter/actions/workflows/build.yaml)
-[![License](https://img.shields.io/github/license/danopstech/speedtest_exporter)](/LICENSE)
-[![Release](https://img.shields.io/github/release/danopstech/speedtest_exporter.svg)](https://github.com/danopstech/speedtest_exporter/releases/latest)
-[![Docker](https://img.shields.io/docker/pulls/danopstech/speedtest_exporter)](https://hub.docker.com/r/danopstech/speedtest_exporter)
-![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/danopstech/speedtest_exporter)
-![os/arch](https://img.shields.io/badge/os%2Farch-amd64-yellow)
-![os/arch](https://img.shields.io/badge/os%2Farch-arm64-yellow)
-![os/arch](https://img.shields.io/badge/os%2Farch-armv7-yellow)
-[![Go Report Card](https://goreportcard.com/badge/github.com/danopstech/speedtest_exporter)](https://goreportcard.com/report/github.com/danopstech/speedtest_exporter)
+Forked from https://github.com/danopstech/speedtest_exporter since there has not
+been any updates there for a few years.
+I will try to keep the binary up to date and fix any issues I find since I find
+this tool useful, but I will not maintain the docker images since I don't use
+them.
 
 ## Usage:
 
@@ -40,23 +35,6 @@ Usage of speedtest_exporter:
 ### Binaries
 
 For pre-built binaries please take a look at the [releases](https://github.com/danopstech/speedtest_exporter/releases).
-
-```bash
-./speedtest_exporter [flags]
-```
-
-### Docker
-
-Docker Images can be found at [GitHub Container Registry](https://github.com/orgs/danopstech/packages/container/package/speedtest_exporter) & [Dockerhub](https://hub.docker.com/r/danopstech/speedtest_exporter).
-
-Example:
-```bash
-docker pull ghcr.io/danopstech/speedtest_exporter:latest
-
-docker run \
-  -p 9090:9090 \
-  ghcr.io/danopstech/speedtest_exporter:latest [flags]
-```
 
 ### Setup Prometheus to scrape `speedtest_exporter`
 

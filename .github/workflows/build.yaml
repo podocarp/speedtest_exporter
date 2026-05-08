@@ -35,7 +35,6 @@ jobs:
         uses: golangci/golangci-lint-action@v7
         with:
           version: v2.11.4
-          args: --out-format=colored-line-number
 
       - name: Build
         uses: goreleaser/goreleaser-action@v2.7.0

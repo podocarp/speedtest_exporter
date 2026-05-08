@@ -21,20 +21,22 @@ them.
 ```bash
 $ ./speedtest_exporter --help
 Usage of speedtest_exporter:
+  -listen-address string
+    	address to listen on (default "0.0.0.0")
   -port string
-        listening port to expose metrics on (default "9090")
+    	listening port to expose metrics on (default "9090")
   -server_fallback
-        If the server_id given is not available, should we fallback to closest available server
+    	If the server_id given is not available, should we fallback to closest available server
   -server_id int
-        Speedtest.net server ID to run test against, -1 will pick the closest server to your location (default -1)
+    	Speedtest.net server ID to run test against, -1 will pick the closest server to your location (default -1)
   -timeout int
-        request timeout for the execution of the speedtest (default 60)
+    	request timeout for the execution of the speedtest (default 60)
 
 ```
 
 ### Binaries
 
-For pre-built binaries please take a look at the [releases](https://github.com/danopstech/speedtest_exporter/releases).
+For pre-built binaries please take a look at the [releases](https://github.com/podocarp/speedtest_exporter/releases).
 
 ### Setup Prometheus to scrape `speedtest_exporter`
 

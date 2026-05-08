@@ -21,6 +21,7 @@ func main() {
 	port := flag.String("port", "9090", "listening port to expose metrics on")
 	serverID := flag.Int("server_id", -1, "Speedtest.net server ID to run test against, -1 will pick the closest server to your location")
 	serverFallback := flag.Bool("server_fallback", false, "If the server_id given is not available, should we fallback to closest available server")
+	requestTimeout := flag.Int("timeout", 60, "request timeout for the execution of the speedtest")
 	flag.Parse()
 
 	exporter, err := exporter.New(*serverID, *serverFallback)
@@ -59,7 +60,7 @@ func main() {
 
 	http.Handle(metricsPath, promhttp.HandlerFor(r, promhttp.HandlerOpts{
 		MaxRequestsInFlight: 1,
-		Timeout:             60 * time.Second,
+		Timeout:             time.Duration(*requestTimeout) * time.Second,
 	}))
 	log.Fatal(http.ListenAndServe(*listenAddress+":"+*port, nil))
 }

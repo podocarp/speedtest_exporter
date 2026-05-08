@@ -17,6 +17,7 @@ const (
 )
 
 func main() {
+	listenAddress := flag.String("listen-address", "0.0.0.0", "address to listen on")
 	port := flag.String("port", "9090", "listening port to expose metrics on")
 	serverID := flag.Int("server_id", -1, "Speedtest.net server ID to run test against, -1 will pick the closest server to your location")
 	serverFallback := flag.Bool("server_fallback", false, "If the server_id given is not available, should we fallback to closest available server")
@@ -61,7 +62,5 @@ func main() {
 		MaxRequestsInFlight: 1,
 		Timeout:             time.Duration(*requestTimeout) * time.Second,
 	}))
-
-	log.Info("starting listener on port: " + *port)
-	log.Fatal(http.ListenAndServe(":"+*port, nil))
+	log.Fatal(http.ListenAndServe(*listenAddress+":"+*port, nil))
 }

@@ -24,23 +24,23 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_TOKEN }}
 
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v5
         with:
-          go-version: 1.16
+          go-version-file: go.mod
 
       - name: Lint
-        uses: golangci/golangci-lint-action@v2
+        uses: golangci/golangci-lint-action@v7
         with:
-          skip-go-installation: true
+          version: v2.11.4
 
       - name: Build
-        uses: goreleaser/goreleaser-action@v2.7.0
+        uses: goreleaser/goreleaser-action@v6
         with:
           version: latest
-          args: release --snapshot --rm-dist
+          args: release --snapshot --clean
 
       - name: Slack Finish Report
         uses: act10ns/slack@v1.2.2

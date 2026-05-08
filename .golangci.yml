@@ -1,0 +1,7 @@
+run:
+  timeout: 5m
+
+# golangci-lint v2 config format.
+# v2 is required for Go 1.25+ (v1 does not support Go 1.25).
+# See: https://github.com/golangci/golangci-lint/issues/5873
+version: "2"

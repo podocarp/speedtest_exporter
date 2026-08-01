@@ -24,7 +24,7 @@ func main() {
 	requestTimeout := flag.Int("timeout", 60, "request timeout for the execution of the speedtest")
 	flag.Parse()
 
-	exporter, err := exporter.New(*serverID, *serverFallback)
+	exporter, err := exporter.New(*serverID, *serverFallback, time.Duration(*requestTimeout)*time.Second)
 	if err != nil {
 		panic(err)
 	}

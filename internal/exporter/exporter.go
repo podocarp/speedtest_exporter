@@ -1,7 +1,9 @@
 package exporter
 
 import (
+	"context"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -50,13 +52,16 @@ var (
 type Exporter struct {
 	serverID       int
 	serverFallback bool
+	timeout        time.Duration
+	mu             sync.Mutex
 }
 
 // New returns an initialized Exporter.
-func New(serverID int, serverFallback bool) (*Exporter, error) {
+func New(serverID int, serverFallback bool, timeout time.Duration) (*Exporter, error) {
 	return &Exporter{
 		serverID:       serverID,
 		serverFallback: serverFallback,
+		timeout:        timeout,
 	}, nil
 }
 
@@ -73,6 +78,16 @@ func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 // as Prometheus metrics. It implements prometheus.Collector.
 func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	testUUID := uuid.New().String()
+	if !e.mu.TryLock() {
+		log.Warn("speedtest scrape already in progress")
+		ch <- prometheus.MustNewConstMetric(
+			up, prometheus.GaugeValue, 0.0,
+			testUUID,
+		)
+		return
+	}
+	defer e.mu.Unlock()
+
 	start := time.Now()
 	ok := e.speedtest(testUUID, ch)
 
@@ -94,7 +109,11 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 }
 
 func (e *Exporter) speedtest(testUUID string, ch chan<- prometheus.Metric) bool {
-	user, err := speedtest.FetchUserInfo()
+	client := speedtest.New()
+	ctx, cancel := context.WithTimeout(context.Background(), e.timeout)
+	defer cancel()
+
+	user, err := client.FetchUserInfoContext(ctx)
 	if err != nil {
 		log.Errorf("could not fetch user information: %s", err.Error())
 		return false
@@ -102,9 +121,13 @@ func (e *Exporter) speedtest(testUUID string, ch chan<- prometheus.Metric) bool 
 
 	// Returns list of servers in distance order (distance is computed using the
 	// user info fetched above).
-	serverList, err := speedtest.FetchServers()
+	serverList, err := client.FetchServerListContext(ctx)
 	if err != nil {
 		log.Errorf("could not fetch server list: %s", err.Error())
+		return false
+	}
+	if len(serverList) == 0 {
+		log.Error("could not fetch server list: no servers returned")
 		return false
 	}
 
@@ -127,15 +150,15 @@ func (e *Exporter) speedtest(testUUID string, ch chan<- prometheus.Metric) bool 
 		server = servers[0]
 	}
 
-	ok := pingTest(testUUID, user, server, ch)
-	ok = downloadTest(testUUID, user, server, ch) && ok
-	ok = uploadTest(testUUID, user, server, ch) && ok
+	ok := pingTest(ctx, testUUID, user, server, ch)
+	ok = downloadTest(ctx, testUUID, user, server, ch) && ok
+	ok = uploadTest(ctx, testUUID, user, server, ch) && ok
 
 	return ok
 }
 
-func pingTest(testUUID string, user *speedtest.User, server *speedtest.Server, ch chan<- prometheus.Metric) bool {
-	err := server.PingTest(nil)
+func pingTest(ctx context.Context, testUUID string, user *speedtest.User, server *speedtest.Server, ch chan<- prometheus.Metric) bool {
+	err := server.PingTestContext(ctx, nil)
 	if err != nil {
 		log.Errorf("failed to carry out ping test: %s", err.Error())
 		return false
@@ -159,8 +182,8 @@ func pingTest(testUUID string, user *speedtest.User, server *speedtest.Server, c
 	return true
 }
 
-func downloadTest(testUUID string, user *speedtest.User, server *speedtest.Server, ch chan<- prometheus.Metric) bool {
-	err := server.DownloadTest()
+func downloadTest(ctx context.Context, testUUID string, user *speedtest.User, server *speedtest.Server, ch chan<- prometheus.Metric) bool {
+	err := server.DownloadTestContext(ctx)
 	if err != nil {
 		log.Errorf("failed to carry out download test: %s", err.Error())
 		return false
@@ -184,8 +207,8 @@ func downloadTest(testUUID string, user *speedtest.User, server *speedtest.Serve
 	return true
 }
 
-func uploadTest(testUUID string, user *speedtest.User, server *speedtest.Server, ch chan<- prometheus.Metric) bool {
-	err := server.UploadTest()
+func uploadTest(ctx context.Context, testUUID string, user *speedtest.User, server *speedtest.Server, ch chan<- prometheus.Metric) bool {
+	err := server.UploadTestContext(ctx)
 	if err != nil {
 		log.Errorf("failed to carry out upload test: %s", err.Error())
 		return false

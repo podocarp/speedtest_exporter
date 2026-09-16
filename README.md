@@ -60,10 +60,14 @@ scrape_configs
 ```
 # HELP speedtest_download_speed_Bps Last download speedtest result
 # TYPE speedtest_download_speed_Bps gauge
+# HELP speedtest_info Metadata about the speed test client and server
+# TYPE speedtest_info gauge
 # HELP speedtest_latency_seconds Measured latency on last speed test
 # TYPE speedtest_latency_seconds gauge
-# HELP speedtest_scrape_duration_seconds Time to preform last speed test
+# HELP speedtest_scrape_duration_seconds Time to perform the last speed test
 # TYPE speedtest_scrape_duration_seconds gauge
+# HELP speedtest_server_distance_kilometers Distance to the speed test server in kilometers
+# TYPE speedtest_server_distance_kilometers gauge
 # HELP speedtest_up Was the last speedtest successful.
 # TYPE speedtest_up gauge
 # HELP speedtest_upload_speed_Bps Last upload speedtest result
